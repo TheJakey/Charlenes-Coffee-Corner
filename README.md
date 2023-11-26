@@ -20,4 +20,8 @@ business goes.
     mvn spring-boot:run
     ```
    
-
+## Test
+1. Run Maven test
+   ```sh
+   mvn clean test
+    ```
