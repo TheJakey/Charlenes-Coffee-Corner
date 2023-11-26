@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.marincic.assignment.model.enumeration.CashRegisterItems.BACON_ROLL;
-import static com.marincic.assignment.model.enumeration.CashRegisterItems.COFFEE_LARGE;
-import static com.marincic.assignment.model.enumeration.CashRegisterItems.COFFEE_MEDIUM;
-import static com.marincic.assignment.model.enumeration.CashRegisterItems.EXTRA_MILK;
-import static com.marincic.assignment.model.enumeration.CashRegisterItems.FRESHLY_SQUEEZED_ORANGE_JUICE;
+import static com.marincic.assignment.model.enumeration.CashRegisterItem.BACON_ROLL;
+import static com.marincic.assignment.model.enumeration.CashRegisterItem.COFFEE_LARGE;
+import static com.marincic.assignment.model.enumeration.CashRegisterItem.COFFEE_MEDIUM;
+import static com.marincic.assignment.model.enumeration.CashRegisterItem.EXTRA_MILK;
+import static com.marincic.assignment.model.enumeration.CashRegisterItem.FRESHLY_SQUEEZED_ORANGE_JUICE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

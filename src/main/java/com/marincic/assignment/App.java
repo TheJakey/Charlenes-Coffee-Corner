@@ -2,43 +2,79 @@ package com.marincic.assignment;
 
 import com.marincic.assignment.model.Receipt;
 import com.marincic.assignment.model.ReceiptItem;
-import com.marincic.assignment.model.enumeration.CashRegisterItems;
+import com.marincic.assignment.model.enumeration.CashRegisterItem;
 import com.marincic.assignment.repository.BonusCardRepository;
 import com.marincic.assignment.repository.ProductRepository;
 import com.marincic.assignment.service.ReceiptService;
 import com.marincic.assignment.service.impl.ReceiptServiceImpl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
+import java.util.Scanner;
+
+import static java.util.Objects.isNull;
 
 public class App {
+
+    private static final Scanner scanner = new Scanner(System.in);
 
     private static final ReceiptService receiptService = new ReceiptServiceImpl(new ProductRepository(),
                                                                                 new BonusCardRepository());
 
     public static void main(String[] args) {
-        System.out.println("Welcome to Coffee Corner!n\n\n");
+        List<CashRegisterItem> orderedItems = new ArrayList<>();
 
-        List<CashRegisterItems> orderedItems = List.of(
-                CashRegisterItems.BACON_ROLL,
-                CashRegisterItems.COFFEE_SMALL,
-                CashRegisterItems.COFFEE_LARGE,
-                CashRegisterItems.COFFEE_LARGE,
-                CashRegisterItems.EXTRA_MILK,
-                CashRegisterItems.SPECIAL_ROAST_COFFEE
-        );
-        Integer bonusCardId = 902;
+        System.out.println("Welcome to Coffee Corner!\n\n");
+        displayProductMenu();
+
+        while (true) {
+            System.out.print("Enter product ID (or '0' to finish): ");
+            int productId = scanner.nextInt();
+
+            if (productId == 0) {
+                break;
+            }
+
+            CashRegisterItem cashRegisterItem = getCashRegisterItem(productId);
+            if (isNull(cashRegisterItem)) {
+                System.out.println("Invalid product ID. Please try again.");
+                continue;
+            }
+
+            orderedItems.add(cashRegisterItem);
+        }
+
+        System.out.print("Enter Bonus Card ID (or '0' to finish): ");
+        int bonusCardIdInput = scanner.nextInt();
+        Integer bonusCardId = bonusCardIdInput != 0 ? bonusCardIdInput : null;
 
         Receipt receipt = receiptService.createReceipt(bonusCardId,
                                                        orderedItems.stream()
-                                                                   .map(CashRegisterItems::getId)
+                                                                   .map(CashRegisterItem::getId)
                                                                    .toList());
 
         printReceipt(receipt);
     }
 
+    private static void displayProductMenu() {
+        System.out.println("Available Products:");
+        Arrays.stream(CashRegisterItem.values())
+              .map(item -> item.getId() + ". " + item.getName())
+              .forEach(System.out::println);
+        System.out.println();
+    }
+
+    private static CashRegisterItem getCashRegisterItem(int productId) {
+        return Arrays.stream(CashRegisterItem.values())
+                     .filter(item -> item.getId() == productId)
+                     .findFirst()
+                     .orElse(null);
+    }
+
     private static void printReceipt(Receipt receipt) {
-        System.out.println("Welcome to Coffee Corner! Here is your receipt:");
+        System.out.println("\n\nHere is your receipt:");
         System.out.println("==========================================================");
         System.out.println("Receipt ID: " + receipt.id());
         System.out.println("Bonus Card ID: " + receipt.bonusCardId());

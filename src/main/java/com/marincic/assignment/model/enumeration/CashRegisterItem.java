@@ -1,6 +1,6 @@
 package com.marincic.assignment.model.enumeration;
 
-public enum CashRegisterItems {
+public enum CashRegisterItem {
 
     COFFEE_SMALL(1,"Coffee (small)"),
     COFFEE_MEDIUM(2, "Coffee (medium)"),
@@ -14,7 +14,7 @@ public enum CashRegisterItems {
     private final int id;
     private final String name;
 
-    CashRegisterItems(int id, String name) {
+    CashRegisterItem(int id, String name) {
         this.id = id;
         this.name = name;
     }
