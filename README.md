@@ -16,8 +16,14 @@ business goes.
    mvn clean install
    ```
 3. Run the application
+
+   CMD:
    ```sh
-    mvn spring-boot:run
+    mvn exec:java -Dexec.mainClass=com.marincic.assignment.App
+    ```
+   PowerShell:
+   ```sh
+    mvn exec:java -D"exec.mainClass"=com.marincic.assignment.App
     ```
    
 ## Test

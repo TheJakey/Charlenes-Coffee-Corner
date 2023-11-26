@@ -6,20 +6,21 @@
   <artifactId>coffee-corner</artifactId>
   <packaging>jar</packaging>
   <properties>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>19</maven.compiler.source>
+    <maven.compiler.target>19</maven.compiler.target>
+    <junit.jupiter.version>5.9.2</junit.jupiter.version>
+    <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
+    <maven.surefire.plugin.version>3.1.2</maven.surefire.plugin.version>
   </properties>
 
   <version>1.0-SNAPSHOT</version>
   <name>coffee-corner</name>
 
-  <url>http://maven.apache.org</url>
-
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.9.2</version>
+      <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -29,7 +30,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
+        <version>${maven.jar.plugin.version}</version>
         <configuration>
           <archive>
             <manifest>
@@ -37,6 +38,11 @@
             </manifest>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.plugin.version}</version>
       </plugin>
     </plugins>
   </build>
