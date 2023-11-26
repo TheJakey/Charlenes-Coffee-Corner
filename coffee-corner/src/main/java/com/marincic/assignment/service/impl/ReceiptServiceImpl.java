@@ -9,6 +9,7 @@ import com.marincic.assignment.repository.BonusCardRepository;
 import com.marincic.assignment.repository.ProductRepository;
 import com.marincic.assignment.service.ReceiptService;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import static com.marincic.assignment.model.enumeration.ProductType.EXTRAS;
 import static com.marincic.assignment.model.enumeration.ProductType.SNACK;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
+import static java.util.UUID.randomUUID;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -25,17 +27,31 @@ import static java.util.stream.Collectors.toMap;
 
 public class ReceiptServiceImpl implements ReceiptService {
 
-    private final ProductRepository productRepository = new ProductRepository();
-    private final BonusCardRepository bonusCardRepository = new BonusCardRepository();
+    private final ProductRepository productRepository;
+    private final BonusCardRepository bonusCardRepository;
+
+    public ReceiptServiceImpl(ProductRepository productRepository,
+                              BonusCardRepository bonusCardRepository) {
+        this.productRepository = productRepository;
+        this.bonusCardRepository = bonusCardRepository;
+    }
 
     @Override
     public Receipt createReceipt(Integer bonusCardId, List<Integer> productIds) {
+        if (productIds.isEmpty()) {
+            throw new IllegalArgumentException("Product IDs list cannot be empty");
+        }
+
         Map<Integer, Long> orderedProductsQuantity = productIds.stream()
                                                                .collect(groupingBy(integer -> integer, counting()));
         Map<Integer, Product> orderedProductsMap = productRepository.findAllById(productIds)
                                                                     .stream()
                                                                     .collect(toMap(Product::id,
                                                                                    identity()));
+
+        if (orderedProductsMap.size() != new HashSet<>(productIds).size()) {
+            throw new IllegalArgumentException("Some of the products do not exist");
+        }
 
         List<ReceiptItem> receiptItems = mapProductsToReceiptItems(orderedProductsMap, orderedProductsQuantity);
 
@@ -90,7 +106,7 @@ public class ReceiptServiceImpl implements ReceiptService {
         }
 
         // This would be replaced by database `save()` method which would handle also the id generation
-        return new Receipt((int) (Math.random() * 1000000),
+        return new Receipt(randomUUID(),
                            bonusCardId,
                            receiptItems);
     }
@@ -98,11 +114,11 @@ public class ReceiptServiceImpl implements ReceiptService {
     private static int getNumberOfProductsWithGivenType(Map<Integer, Product> orderedProductsMap,
                                                         Map<Integer, Long> orderedProductsQuantity,
                                                         ProductType productType) {
-        return (int) orderedProductsMap.values()
-                                       .stream()
-                                       .filter(product -> product.type().equals(productType))
-                                       .map(product -> orderedProductsQuantity.get(product.id()).intValue())
-                                       .count();
+        return orderedProductsMap.values()
+                                 .stream()
+                                 .filter(product -> product.type().equals(productType))
+                                 .map(product -> orderedProductsQuantity.get(product.id()).intValue())
+                                 .reduce(0, Integer::sum);
     }
 
     private List<ReceiptItem> mapProductsToReceiptItems(Map<Integer, Product> orderedProductsMap,

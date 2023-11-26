@@ -3,6 +3,8 @@ package com.marincic.assignment;
 import com.marincic.assignment.model.Receipt;
 import com.marincic.assignment.model.ReceiptItem;
 import com.marincic.assignment.model.enumeration.CashRegisterItems;
+import com.marincic.assignment.repository.BonusCardRepository;
+import com.marincic.assignment.repository.ProductRepository;
 import com.marincic.assignment.service.ReceiptService;
 import com.marincic.assignment.service.impl.ReceiptServiceImpl;
 
@@ -11,7 +13,8 @@ import java.util.List;
 
 public class App {
 
-    private static final ReceiptService receiptService = new ReceiptServiceImpl();
+    private static final ReceiptService receiptService = new ReceiptServiceImpl(new ProductRepository(),
+                                                                                new BonusCardRepository());
 
     public static void main(String[] args) {
         System.out.println("Welcome to Coffee Corner!n\n\n");
