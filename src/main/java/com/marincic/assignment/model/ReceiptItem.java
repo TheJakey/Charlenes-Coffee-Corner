@@ -5,7 +5,7 @@ import java.util.Currency;
 public record ReceiptItem(
         String name,
         Double price,
-        int quantity,
+        Long quantity,
         Double totalPrice,
         Currency currency
 ) {

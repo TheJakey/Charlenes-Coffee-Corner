@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.toMap;
 
 public class ReceiptServiceImpl implements ReceiptService {
 
+    private static final long FREE_BEVERAGE_ELIGIBLE = 5L;
     private final ProductRepository productRepository;
     private final BonusCardRepository bonusCardRepository;
 
@@ -54,18 +55,19 @@ public class ReceiptServiceImpl implements ReceiptService {
 
         List<ReceiptItem> receiptItems = mapProductsToReceiptItems(orderedProductsMap, orderedProductsQuantity);
 
-        int beverageCount = getNumberOfProductsWithGivenType(orderedProductsMap, orderedProductsQuantity, BEVERAGE);
+        long beverageCount = getNumberOfProductsWithGivenType(orderedProductsMap, orderedProductsQuantity, BEVERAGE);
 
         Optional<BonusCard> bonusCardOptional = bonusCardRepository.findById(bonusCardId);
         if (bonusCardOptional.isPresent()) {
             BonusCard bonusCard = bonusCardOptional.get();
 
-            int numberOfFreeBeveragesAlreadyClaimed = bonusCard.numberOfBeveragesPurchased() / 5;
+            long numberOfFreeBeveragesAlreadyClaimed = bonusCard.numberOfBeveragesPurchased() / FREE_BEVERAGE_ELIGIBLE;
 
             BonusCard newBonusCardState = new BonusCard(bonusCard.id(),
                                                         bonusCard.numberOfBeveragesPurchased() + beverageCount);
 
-            int numberOfFreeBeveragesToBeClaimed = newBonusCardState.numberOfBeveragesPurchased() / 5 - numberOfFreeBeveragesAlreadyClaimed;
+            long numberOfFreeBeveragesToBeClaimed =
+                    newBonusCardState.numberOfBeveragesPurchased() / FREE_BEVERAGE_ELIGIBLE - numberOfFreeBeveragesAlreadyClaimed;
 
             productIds.stream()
                       .map(orderedProductsMap::get)
@@ -73,20 +75,20 @@ public class ReceiptServiceImpl implements ReceiptService {
                       .sorted(comparing(Product::price))
                       .limit(numberOfFreeBeveragesToBeClaimed)
                       .map(ReceiptServiceImpl::negatePrice)
-                      .map(product -> mapProductToReceiptItem(product, 1))
+                      .map(product -> mapProductToReceiptItem(product, 1L))
                       .forEach(receiptItems::add);
 
             // save newBonusCardState to DB
         }
 
-        int snacksCount = getNumberOfProductsWithGivenType(orderedProductsMap, orderedProductsQuantity, SNACK);
+        long snacksCount = getNumberOfProductsWithGivenType(orderedProductsMap, orderedProductsQuantity, SNACK);
         if (beverageCount > 0 && snacksCount > 0) {
             orderedProductsMap.values()
                               .stream()
                               .filter(product -> product.type().equals(EXTRAS))
                               .min(comparing(Product::price))
                               .map(ReceiptServiceImpl::negatePrice)
-                              .map(product -> mapProductToReceiptItem(product, 1))
+                              .map(product -> mapProductToReceiptItem(product, 1L))
                               .ifPresent(receiptItems::add);
         }
 
@@ -102,14 +104,14 @@ public class ReceiptServiceImpl implements ReceiptService {
                            product.type());
     }
 
-    private static int getNumberOfProductsWithGivenType(Map<Integer, Product> orderedProductsMap,
+    private static long getNumberOfProductsWithGivenType(Map<Integer, Product> orderedProductsMap,
                                                         Map<Integer, Long> orderedProductsQuantity,
                                                         ProductType productType) {
         return orderedProductsMap.values()
                                  .stream()
                                  .filter(product -> product.type().equals(productType))
-                                 .map(product -> orderedProductsQuantity.get(product.id()).intValue())
-                                 .reduce(0, Integer::sum);
+                                 .map(product -> orderedProductsQuantity.get(product.id()))
+                                 .reduce(0L, Long::sum);
     }
 
     private List<ReceiptItem> mapProductsToReceiptItems(Map<Integer, Product> orderedProductsMap,
@@ -117,12 +119,11 @@ public class ReceiptServiceImpl implements ReceiptService {
         return orderedProductsMap.values()
                                  .stream()
                                  .map(product -> mapProductToReceiptItem(product,
-                                                                         orderedProductsQuantity.get(product.id())
-                                                                                                .intValue())) // TODO: int to long
+                                                                         orderedProductsQuantity.get(product.id())))
                                  .collect(toList());
     }
 
-    private ReceiptItem mapProductToReceiptItem(Product product, int quantity) {
+    private ReceiptItem mapProductToReceiptItem(Product product, Long quantity) {
         return new ReceiptItem(product.name(),
                                product.price(),
                                quantity,
