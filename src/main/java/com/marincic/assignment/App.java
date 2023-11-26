@@ -47,6 +47,11 @@ public class App {
             orderedItems.add(cashRegisterItem);
         }
 
+        if (orderedItems.isEmpty()) {
+            System.out.println("No products ordered. Exiting...");
+            return;
+        }
+
         System.out.print("Enter Bonus Card ID (or '0' to finish): ");
         int bonusCardIdInput = scanner.nextInt();
         Integer bonusCardId = bonusCardIdInput != 0 ? bonusCardIdInput : null;
