@@ -56,9 +56,9 @@ public class BonusServiceImpl implements BonusService {
 
     @Override
     public Optional<Product> getFreeExtra(Integer bonusCardId,
-                                List<Integer> productIds,
-                                Map<Integer, Product> orderedProductsMap,
-                                Map<Integer, Long> orderedProductsQuantity) {
+                                          List<Integer> productIds,
+                                          Map<Integer, Product> orderedProductsMap,
+                                          Map<Integer, Long> orderedProductsQuantity) {
         long beverageCount = getNumberOfProductsWithGivenType(orderedProductsMap, orderedProductsQuantity, BEVERAGE);
         long snacksCount = getNumberOfProductsWithGivenType(orderedProductsMap, orderedProductsQuantity, SNACK);
 

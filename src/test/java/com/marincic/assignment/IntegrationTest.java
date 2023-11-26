@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AppTest {
+public class IntegrationTest {
 
     private final ReceiptService receiptService = new ReceiptServiceImpl(new ProductRepository(),
                                                                          new BonusServiceImpl(new BonusCardRepository()));
