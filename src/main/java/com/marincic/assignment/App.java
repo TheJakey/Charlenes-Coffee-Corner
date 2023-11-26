@@ -61,7 +61,7 @@ public class App {
 
     private static void displayProductMenu() {
         System.out.println("Available Products:");
-        Arrays.stream(CashRegisterItem.values())
+        Arrays.stream(CashRegisterItem.values()) // replace with DB call
               .map(item -> item.getId() + ". " + item.getName())
               .forEach(System.out::println);
         System.out.println();
@@ -112,7 +112,5 @@ public class App {
         System.out.println(" Years of experience, great attitude and a lot of passion!");
         System.out.println(" For contact, please reach out to Igor");
         System.out.println("==========================================================\n\n\n");
-
-        // generate qr code that says "Jakub is really cool guy, you should hire him!" and print it
     }
 }

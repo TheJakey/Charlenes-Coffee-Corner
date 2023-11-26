@@ -85,7 +85,7 @@ public class AppTest {
         assertEquals(0.3, receipt.receiptItems().get(2).price());
         assertEquals(0.3, receipt.receiptItems().get(2).totalPrice());
 
-        assertEquals(EXTRA_MILK.getName(), receipt.receiptItems().get(2).name());
+        assertEquals(EXTRA_MILK.getName(), receipt.receiptItems().get(3).name());
         assertEquals(1, receipt.receiptItems().get(3).quantity());
         assertEquals(-0.3, receipt.receiptItems().get(3).price());
         assertEquals(-0.3, receipt.receiptItems().get(3).totalPrice());

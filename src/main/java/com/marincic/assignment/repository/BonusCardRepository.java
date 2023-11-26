@@ -4,14 +4,14 @@ package com.marincic.assignment.repository;
 import com.marincic.assignment.model.BonusCard;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BonusCardRepository {
 
-    public BonusCard findById(Integer bonusCardId) {
+    public Optional<BonusCard> findById(Integer bonusCardId) {
         return mockedBonusCards().stream()
-                                    .filter(bonusCard -> bonusCard.id().equals(bonusCardId))
-                                    .findFirst()
-                                    .orElse(null);
+                                 .filter(bonusCard -> bonusCard.id().equals(bonusCardId))
+                                 .findFirst();
     }
 
     private static List<BonusCard> mockedBonusCards() {

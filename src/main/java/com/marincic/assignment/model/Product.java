@@ -7,7 +7,7 @@ import java.util.Currency;
 public record Product(
         Integer id,
         String name,
-        Double price,
+        Double price, // TODO: Use BigDecimal instead
         Currency currency,
         ProductType type
 ) {

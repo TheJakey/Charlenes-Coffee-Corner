@@ -9,15 +9,14 @@ import com.marincic.assignment.repository.BonusCardRepository;
 import com.marincic.assignment.repository.ProductRepository;
 import com.marincic.assignment.service.ReceiptService;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.marincic.assignment.model.enumeration.ProductType.BEVERAGE;
 import static com.marincic.assignment.model.enumeration.ProductType.EXTRAS;
 import static com.marincic.assignment.model.enumeration.ProductType.SNACK;
 import static java.util.Comparator.comparing;
-import static java.util.Objects.nonNull;
 import static java.util.UUID.randomUUID;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.counting;
@@ -43,13 +42,13 @@ public class ReceiptServiceImpl implements ReceiptService {
         }
 
         Map<Integer, Long> orderedProductsQuantity = productIds.stream()
-                                                               .collect(groupingBy(integer -> integer, counting()));
+                                                               .collect(groupingBy(identity(), counting()));
         Map<Integer, Product> orderedProductsMap = productRepository.findAllById(productIds)
                                                                     .stream()
                                                                     .collect(toMap(Product::id,
                                                                                    identity()));
 
-        if (orderedProductsMap.size() != new HashSet<>(productIds).size()) {
+        if (orderedProductsMap.size() != orderedProductsQuantity.keySet().size()) {
             throw new IllegalArgumentException("Some of the products do not exist");
         }
 
@@ -57,8 +56,10 @@ public class ReceiptServiceImpl implements ReceiptService {
 
         int beverageCount = getNumberOfProductsWithGivenType(orderedProductsMap, orderedProductsQuantity, BEVERAGE);
 
-        BonusCard bonusCard = bonusCardRepository.findById(bonusCardId);
-        if (nonNull(bonusCard)) {
+        Optional<BonusCard> bonusCardOptional = bonusCardRepository.findById(bonusCardId);
+        if (bonusCardOptional.isPresent()) {
+            BonusCard bonusCard = bonusCardOptional.get();
+
             int numberOfFreeBeveragesAlreadyClaimed = bonusCard.numberOfBeveragesPurchased() / 5;
 
             BonusCard newBonusCardState = new BonusCard(bonusCard.id(),
@@ -66,49 +67,39 @@ public class ReceiptServiceImpl implements ReceiptService {
 
             int numberOfFreeBeveragesToBeClaimed = newBonusCardState.numberOfBeveragesPurchased() / 5 - numberOfFreeBeveragesAlreadyClaimed;
 
-            List<Product> orderedBeveragesByPrice = productIds.stream()
-                                                              .map(orderedProductsMap::get)
-                                                              .filter(product -> product.type().equals(BEVERAGE))
-                                                              .sorted(comparing(Product::price))
-                                                              .toList();
+            productIds.stream()
+                      .map(orderedProductsMap::get)
+                      .filter(product -> product.type().equals(BEVERAGE))
+                      .sorted(comparing(Product::price))
+                      .limit(numberOfFreeBeveragesToBeClaimed)
+                      .map(ReceiptServiceImpl::negatePrice)
+                      .map(product -> mapProductToReceiptItem(product, 1))
+                      .forEach(receiptItems::add);
 
-            for (int i = 0; i < numberOfFreeBeveragesToBeClaimed; i++) {
-                Product product = orderedBeveragesByPrice.get(i);
-
-                if (nonNull(product)) {
-                    Product beverageToBeFree = new Product(product.id(),
-                                                           product.name(),
-                                                           product.price() * -1,
-                                                           product.currency(),
-                                                           product.type());
-
-                    receiptItems.add(mapProductToReceiptItem(beverageToBeFree, 1));
-                }
-            }
+            // save newBonusCardState to DB
         }
 
         int snacksCount = getNumberOfProductsWithGivenType(orderedProductsMap, orderedProductsQuantity, SNACK);
         if (beverageCount > 0 && snacksCount > 0) {
-            Product extraToBeFree = orderedProductsMap.values()
-                                                      .stream()
-                                                      .filter(product -> product.type().equals(EXTRAS))
-                                                      .min(comparing(Product::price))
-                                                      .map(product -> new Product(product.id(),
-                                                                                  product.name(),
-                                                                                  product.price() * -1,
-                                                                                  product.currency(),
-                                                                                  product.type()))
-                                                      .orElse(null);
-
-            if (nonNull(extraToBeFree)) {
-                receiptItems.add(mapProductToReceiptItem(extraToBeFree, 1));
-            }
+            orderedProductsMap.values()
+                              .stream()
+                              .filter(product -> product.type().equals(EXTRAS))
+                              .min(comparing(Product::price))
+                              .map(ReceiptServiceImpl::negatePrice)
+                              .map(product -> mapProductToReceiptItem(product, 1))
+                              .ifPresent(receiptItems::add);
         }
 
         // This would be replaced by database `save()` method which would handle also the id generation
-        return new Receipt(randomUUID(),
-                           bonusCardId,
-                           receiptItems);
+        return new Receipt(randomUUID(), bonusCardId, receiptItems);
+    }
+
+    private static Product negatePrice(Product product) {
+        return new Product(product.id(),
+                           product.name(),
+                           product.price() * -1,
+                           product.currency(),
+                           product.type());
     }
 
     private static int getNumberOfProductsWithGivenType(Map<Integer, Product> orderedProductsMap,
@@ -127,7 +118,7 @@ public class ReceiptServiceImpl implements ReceiptService {
                                  .stream()
                                  .map(product -> mapProductToReceiptItem(product,
                                                                          orderedProductsQuantity.get(product.id())
-                                                                                                .intValue()))
+                                                                                                .intValue())) // TODO: int to long
                                  .collect(toList());
     }
 
