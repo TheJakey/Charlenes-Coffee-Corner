@@ -5,6 +5,7 @@ import com.marincic.assignment.model.ReceiptItem;
 import com.marincic.assignment.repository.BonusCardRepository;
 import com.marincic.assignment.repository.ProductRepository;
 import com.marincic.assignment.service.ReceiptService;
+import com.marincic.assignment.service.impl.BonusServiceImpl;
 import com.marincic.assignment.service.impl.ReceiptServiceImpl;
 import org.junit.jupiter.api.Test;
 
@@ -22,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class AppTest {
 
     private final ReceiptService receiptService = new ReceiptServiceImpl(new ProductRepository(),
-                                                                         new BonusCardRepository());
+                                                                         new BonusServiceImpl(new BonusCardRepository()));
 
     @Test
-    public void whenOrderOneLargeCoffeeThenReturnCorrectReceipt () {
+    public void whenOrderOneLargeCoffeeThenReturnCorrectReceipt() {
         int id = COFFEE_LARGE.getId();
 
         Receipt receipt = receiptService.createReceipt(null, List.of(id));

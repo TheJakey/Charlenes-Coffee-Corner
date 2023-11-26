@@ -22,4 +22,9 @@ public class BonusCardRepository {
         );
     }
 
+    public BonusCard save(BonusCard newBonusCard) {
+        // save newBonusCard to DB
+        return newBonusCard;
+    }
+
 }

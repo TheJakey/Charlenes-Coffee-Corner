@@ -6,6 +6,7 @@ import com.marincic.assignment.model.enumeration.CashRegisterItem;
 import com.marincic.assignment.repository.BonusCardRepository;
 import com.marincic.assignment.repository.ProductRepository;
 import com.marincic.assignment.service.ReceiptService;
+import com.marincic.assignment.service.impl.BonusServiceImpl;
 import com.marincic.assignment.service.impl.ReceiptServiceImpl;
 
 import java.util.ArrayList;
@@ -21,8 +22,12 @@ public class App {
 
     private static final Scanner scanner = new Scanner(System.in);
 
-    private static final ReceiptService receiptService = new ReceiptServiceImpl(new ProductRepository(),
-                                                                                new BonusCardRepository());
+    private static final ReceiptService receiptService;
+
+    static {
+        receiptService = new ReceiptServiceImpl(new ProductRepository(),
+                                                new BonusServiceImpl(new BonusCardRepository()));
+    }
 
     public static void main(String[] args) {
         List<CashRegisterItem> orderedItems = new ArrayList<>();
