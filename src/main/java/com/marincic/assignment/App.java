@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class App {
 
@@ -77,7 +78,7 @@ public class App {
         System.out.println("\n\nHere is your receipt:");
         System.out.println("==========================================================");
         System.out.println("Receipt ID: " + receipt.id());
-        System.out.println("Bonus Card ID: " + receipt.bonusCardId());
+        System.out.println("Bonus Card ID: " + (nonNull(receipt.bonusCardId()) ? receipt.bonusCardId() : " - "));
         System.out.println("==========================================================");
         System.out.printf("%-21s %-10s %-10s %-10s\n", "Item", "Quantity", "Price", "Total");
         System.out.println("==========================================================");
